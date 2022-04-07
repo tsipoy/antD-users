@@ -13,30 +13,6 @@ export default function UsersTable() {
         {
             title: 'Name',
             dataIndex: 'name',
-            filters: [
-                {
-                    text: 'Joe',
-                    value: 'Joe',
-                },
-                {
-                    text: 'Jim',
-                    value: 'Jim',
-                },
-                {
-                    text: 'Submenu',
-                    value: 'Submenu',
-                    children: [
-                        {
-                            text: 'Green',
-                            value: 'Green',
-                        },
-                        {
-                            text: 'Black',
-                            value: 'Black',
-                        },
-                    ],
-                },
-            ],
             sorter: (a, b) => a.name.localeCompare(b.name),
             
         },
@@ -66,7 +42,6 @@ const columsFilter = getColumns(cityFilter)
 
 
     function onChange(pagination, filters, sorter, extra) {
-        console.log('params', pagination, filters, sorter, extra);
         dispatch(setFirstValue(extra.currentDataSource[0]))
     }
 

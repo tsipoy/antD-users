@@ -13,7 +13,6 @@ export const getUsersAsync = createAsyncThunk(
   async (_, thunkApi) => {
     try {
       const response = await fetchUsers();
-      console.log('response::::::',response);
       return response;
     } catch (error) {
       return thunkApi.rejectWithValue({
@@ -29,7 +28,6 @@ export const userSlice = createSlice({
   reducers: {
 
     setFirstValue: (state, action) => {
-      console.log('action::::::',action);
       state.firstValue = action.payload;
     },
   },
@@ -44,7 +42,6 @@ export const userSlice = createSlice({
         const firstValue = action.payload[0]
         state.firstValue = {...firstValue, city: firstValue.address.city}
 
-        console.log('action.payload::::::', action.payload);
         state.value = action.payload;
       })
       .addCase(getUsersAsync.rejected, (state, { payload }) => {
@@ -61,8 +58,6 @@ export const selectLoading = (state) => state.users.status === "loading";
 
 
 export const selectUserTableData = (state) => {
-
-  console.log('state.users::::::', state.users);
 
   return state.users.value?.map((user) => {
     return (

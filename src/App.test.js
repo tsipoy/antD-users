@@ -1,35 +1,150 @@
-// import { render, screen } from '@testing-library/react';
-// import App from './App';
-
-// test('renders learn react link', () => {
-//   render(<App />);
-//   const linkElement = screen.getByText(/learn react/i);
-//   expect(linkElement).toBeInTheDocument();
-// });
-
-
 import React from 'react';
 import {
   render,
   screen,
   fireEvent,
   RenderResult,
+  act,
+  within
 } from '@testing-library/react';
 import { Provider } from 'react-redux';
-
+import { StrictMode } from "react";
 import App from "./App";
 import { store } from "./redux/store";
+const renderItem = async () => {
+  return await act(async () => {
+    render(
+      <StrictMode>
+        <Provider store={store}>
+          <App />
+        </Provider>
+      </StrictMode>
+    );
+  });
+};
 
+const checkCardData = (name, email, city) => {
+  const element = screen.getByTestId("first-row-card");
+  expect(element).toBeInTheDocument();
+  const nameElement = screen.getByTestId("first-row-name");
+  expect(nameElement).toBeInTheDocument();
+  expect(nameElement.textContent).toBe(name);
+  const emailElement = screen.getByTestId("first-row-email");
+  expect(emailElement).toBeInTheDocument();
+  expect(emailElement.textContent).toBe(email);
+  const cityElement = screen.getByTestId("first-row-city");
+  expect(cityElement).toBeInTheDocument();
+  expect(cityElement.textContent).toBe(city);
+};
 
+const checkFirstRowData = (name, email, city) => {
+  const firstRow = screen.getAllByRole("row")[1];
+  const firstRowCells = within(firstRow).getAllByRole("cell");
+  expect(firstRowCells[0].textContent).toBe(name);
+  expect(firstRowCells[1].textContent).toBe(email);
+  expect(firstRowCells[2].textContent).toBe(city);
+};
 
-const renderItem = () => {
-  render (
-    <Provider store={store}>
-      <App />
-    </Provider >
-  )
-}
+test("initial render order", async () => {
+  // Expected
+  const { name, email, city } = {
+    name: "Leanne Graham",
+    email: "Sincere@april.biz",
+    city: "Gwenborough",
+  };
+  await renderItem();
+  expect(screen.getByText("First Row")).toBeInTheDocument();
+  checkCardData(name, email, city);
+  checkFirstRowData(name, email, city);
+  const firstRow = screen.getAllByRole("row")[1];
+  const firstRowCells = within(firstRow).getAllByRole("cell");
+  expect(firstRowCells[0].textContent).toBe("Leanne Graham");
+});
 
+test("name sorting ascending", async () => {
+  // Expected
+  const { name, email, city } = {
+    name: "Chelsey Dietrich",
+    email: "Lucio_Hettinger@annie.ca",
+    city: "Roscoeview",
+  };
+  await renderItem();
+  const tableHeader = screen.getAllByRole("row")[0];
+  const nameHeader = within(tableHeader).getByText("Name");
+  // user actions
+  fireEvent.click(nameHeader);
+  checkCardData(name, email, city);
+  checkFirstRowData(name, email, city);
+});
+
+test("name sorting descending", async () => {
+  // Expected
+  const { name, email, city } = {
+    name: "Patricia Lebsack",
+    email: "Julianne.OConner@kory.org",
+    city: "South Elvis",
+  };
+  await renderItem();
+  const tableHeader = screen.getAllByRole("row")[0];
+  const nameHeader = within(tableHeader).getByText("Name");
+  // user actions
+  fireEvent.click(nameHeader);
+  fireEvent.click(nameHeader);
+  checkCardData(name, email, city);
+  checkFirstRowData(name, email, city);
+});
+
+test("email sorting ascending", async () => {
+  // Expected
+  const { name, email, city } = {
+    name: "Glenna Reichert",
+    email: "Chaim_McDermott@dana.io",
+    city: "Bartholomebury",
+  };
+  await renderItem();
+  const tableHeader = screen.getAllByRole("row")[0];
+  const emailHeader = within(tableHeader).getByText("Email");
+  // user actions
+  fireEvent.click(emailHeader);
+  checkCardData(name, email, city);
+  checkFirstRowData(name, email, city);
+});
+
+test("email sorting descending", async () => {
+  // Expected
+  const { name, email, city } = {
+    name: "Kurtis Weissnat",
+    email: "Telly.Hoeger@billy.biz",
+    city: "Howemouth",
+  };
+  await renderItem();
+  const tableHeader = screen.getAllByRole("row")[0];
+  const emailHeader = within(tableHeader).getByText("Email");
+  // user actions
+  fireEvent.click(emailHeader);
+  fireEvent.click(emailHeader);
+  checkCardData(name, email, city);
+  checkFirstRowData(name, email, city);
+});
+
+test("city filtering", async () => {
+  // Expected
+  const { name, email, city } = {
+    name: "Ervin Howell",
+    email: "Shanna@melissa.tv",
+    city: "Wisokyburgh",
+  };
+  await renderItem();
+  const tableHeader = screen.getAllByRole("row")[0];
+  const filterButton = within(tableHeader).getByLabelText("filter");
+  fireEvent.click(filterButton);
+  const option2 = screen.getByTitle(city);
+  fireEvent.click(option2);
+  const buttonOk = screen.getByText("OK");
+  fireEvent.click(buttonOk);
+  checkCardData(name, email, city);
+  checkFirstRowData(name, email, city);
+});
 const mockedUserData = [
   {
     "id": 1,
@@ -263,40 +378,7 @@ const mockedUserData = [
   }
 ]
 
-test('renders app', () => {
-  const container = renderItem();
-  console.log('container::::::',container);
-  expect(container()).toMatchSnapshot();
-});
-
-// beforeAll(() => {
-//   Object.defineProperty(window, "matchMedia", {
-//     writable: true,
-//     value: jest.fn().mockImplementation(query => ({
-//       matches: false,
-//       media: query,
-//       onchange: null,
-//       addListener: jest.fn(), // Deprecated
-//       removeListener: jest.fn(), // Deprecated
-//       addEventListener: jest.fn(),
-//       removeEventListener: jest.fn(),
-//       dispatchEvent: jest.fn(),
-//     }))
-//   });
-// });
-
-
-
 beforeAll(() => {
-  // Object.defineProperty(window, "matchMedia", {
-  //   value: jest.fn(() => {
-  //     return {
-  //       matches: true,
-  //       addListener: jest.fn(),
-  //       removeListener: jest.fn()
-  //     };
-  //   })
-  // });
   global.matchMedia = global.matchMedia || function () {
     return {
       addListener: jest.fn(),
@@ -304,6 +386,7 @@ beforeAll(() => {
     };
   };
 });
+
 beforeEach(() => {
   jest.spyOn(global, 'fetch').mockResolvedValue({
     json: jest.fn().mockResolvedValue(mockedUserData)
@@ -313,31 +396,3 @@ beforeEach(() => {
 afterEach(() => {
   jest.restoreAllMocks();
 });
-
-// test('description field', () => {
-//   let toDo = getToDo(1);
-//   const { asFragment, rerender } = renderItem(toDo);
-//   let textInput = screen.getByLabelText('Description');
-//   expect(textInput).toHaveValue('eat tacos');
-//   fireEvent.change(textInput, { target: { value: 'live, laugh, love' } });
-
-//   textInput = screen.getByLabelText('Description');
-//   toDo = getToDo(1);
-//   expect(toDo).toMatchInlineSnapshot(`
-//     Object {
-//       "description": "live, laugh, love",
-//       "isComplete": true,
-//       "profileId": 1,
-//       "toDoId": 1,
-//     }
-//   `);
-
-//   // it is necessary to reduxify the component when you rerender also
-//   rerender(
-//     <Provider store={store}>
-//       <ToDoItem toDo={toDo} />
-//     </Provider>,
-//   );
-//   expect(textInput).toHaveValue('live, laugh, love');
-//   expect(asFragment()).toMatchSnapshot();
-// });
